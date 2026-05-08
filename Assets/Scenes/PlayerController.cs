@@ -1,28 +1,17 @@
-using System.Diagnostics;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f;       // Normal movement speed
-    public float sprintMultiplier = 1.5f; // Sprint speed multiplier
-    public GameObject bulletPrefab;   // Drag bullet prefab here in Inspector
-    public Transform firePoint;       // Empty GameObject at player�s front
-
-    // Removed null coalescing for Unity objects (UNT0007)
-    public PlayerController(Transform firePoint)
-    {
-        if (firePoint == null)
-        {
-            throw new System.ArgumentNullException(nameof(firePoint));
-        }
-        this.firePoint = firePoint;
-    }
+    public float moveSpeed = 5f;              // Normal movement speed
+    public float sprintMultiplier = 1.5f;     // Sprint speed multiplier
+    public GameObject bulletPrefab;           // Drag bullet prefab here in Inspector
+    public Transform firePoint;               // Empty GameObject at player's front
 
     private Rigidbody2D rb;
     private Vector2 moveInput;
 
-    void Start()
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
@@ -33,11 +22,13 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Get WASD input
-        if (moveInput != null)
-            moveInput.x = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right
+        // Get WASD / arrow keys input
+        moveInput.x = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right
         moveInput.y = Input.GetAxisRaw("Vertical");   // W/S or Up/Down
-        moveInput.Normalize(); // Prevent faster diagonal movement
+
+        // Prevent faster diagonal movement
+        if (moveInput.sqrMagnitude > 1f)
+            moveInput.Normalize();
 
         // Fire bullet on left mouse click
         if (Input.GetMouseButtonDown(0))
@@ -56,25 +47,41 @@ public class PlayerController : MonoBehaviour
             currentSpeed *= sprintMultiplier;
         }
 
-        // Apply movement
+        // Apply movement using Rigidbody2D velocity
         if (rb != null)
         {
-            if (rb != null)
-                rb.linearVelocity = moveInput * currentSpeed;
+            rb.linearVelocity = moveInput * currentSpeed;
         }
     }
 
     void Shoot()
     {
-        if (bulletPrefab != null && firePoint != null)
+        if (bulletPrefab == null || firePoint == null)
         {
-            UnityEngine.Debug.LogWarning("Bullet prefab or fire point not assigned."); // CS0104 fix: fully qualify Debug
-            Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+            Debug.LogWarning("Bullet prefab or fire point not assigned.");
+            return;
         }
-        else
+
+        Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
         {
-            UnityEngine.Debug.LogWarning("Bullet prefab or fire point not assigned."); // CS0104 fix: fully qualify Debug
+            Debug.Log("Player hit by enemy!");
+            ResetPlayer();
         }
     }
-}
+    public Vector2 startPosition = new Vector2(0, 0);
 
+    private void ResetPlayer()
+    {
+        // Stop movement and move to the configured start position.
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
+        transform.position = startPosition;
+        Debug.Log("Player respawned at start.");
+    }
+
+}

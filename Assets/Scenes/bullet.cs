@@ -12,11 +12,15 @@ public class Bullet : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Destroy enemy and bullet on impact
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            Destroy(collision.gameObject);
-            Destroy(gameObject);
+            Debug.Log("Enemy destroyed!");
+            Destroy(collision.gameObject); // remove enemy
+            Destroy(gameObject);           // remove bullet
+
+            // Notify GameManager
+            if (GameManager.Instance != null)
+                GameManager.Instance.OnEnemyDestroyed();
         }
         else if (collision.gameObject.CompareTag("Wall"))
         {

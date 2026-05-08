@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 public class GridManager : MonoBehaviour
 {
-    public GameObject enemyPrefab;
-    public int gridSize = 12;
-    public int enemyCount = 5;
+    public GameObject enemyPrefab;   // Drag your Enemy prefab here
+    public int gridSize = 12;        // 12x12 grid
+    public int enemyCount = 5;       // Minimum 5 enemies
     private List<Vector2> usedPositions = new List<Vector2>();
 
     void Start()
@@ -29,7 +29,7 @@ public class GridManager : MonoBehaviour
         do
         {
             pos = new Vector2(Random.Range(0, gridSize), Random.Range(0, gridSize));
-        } while (usedPositions.Contains(pos));
+        } while (usedPositions.Contains(pos)); // Prevent overlap
         return pos;
     }
 }

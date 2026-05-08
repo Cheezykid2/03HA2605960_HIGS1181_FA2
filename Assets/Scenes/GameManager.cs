@@ -1,10 +1,27 @@
 using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance { get; private set; }
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public int enemyCount;
     public Text enemyCounter;
+    public TMPro.TextMeshProUGUI enemyCounterTMP;
+    public GameObject winPanel; // UI panel for win screen
     public GameObject winScreen;
 
     void Start()
@@ -41,4 +58,7 @@ public class GameManager : MonoBehaviour
         if (enemyCounter != null)
             enemyCounter.text = "Enemies Remaining: " + enemyCount;
     }
+    void update() => UpdateUI();
+
+
 }
