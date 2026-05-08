@@ -7,14 +7,17 @@ public class GameManager : MonoBehaviour
     public Text enemyCounter;
     public GameObject winScreen;
 
-    void StartGame()
+    void Start()
     {
+        // Ensure UI is in sync at start
         UpdateUI();
+        if (winScreen != null)
+            winScreen.SetActive(false);
     }
 
     public void OnEnemyDestroyed()
     {
-        enemyCount--;
+        enemyCount = Mathf.Max(0, enemyCount - 1);
         UpdateUI();
         CheckWinCondition();
     }
@@ -29,11 +32,13 @@ public class GameManager : MonoBehaviour
 
     void ShowWinScreen()
     {
-        winScreen.SetActive(true);
+        if (winScreen != null)
+            winScreen.SetActive(true);
     }
 
     void UpdateUI()
     {
-        enemyCounter.text = "Enemies Remaining: " + enemyCount;
+        if (enemyCounter != null)
+            enemyCounter.text = "Enemies Remaining: " + enemyCount;
     }
 }
